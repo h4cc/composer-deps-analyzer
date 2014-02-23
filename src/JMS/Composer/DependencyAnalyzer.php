@@ -60,7 +60,7 @@ class DependencyAnalyzer
         );
     }
 
-    public function analyzeComposerData($composerJsonData, $composerLockData = null, $dir = null)
+    public function analyzeComposerData($composerJsonData, $composerLockData = null, $dir = null, $includeDevs = true)
     {
         $rootPackageData = $this->parseJson($composerJsonData);
         if ( ! isset($rootPackageData['name'])) {
@@ -85,7 +85,7 @@ class DependencyAnalyzer
                 }
             }
 
-            if (isset($rootPackageData['require-dev'])) {
+            if ($includeDevs && isset($rootPackageData['require-dev'])) {
                 foreach ($rootPackageData['require-dev'] as $name => $versionConstraint) {
                     $this->connect($graph, $rootPackageData['name'], $name, $versionConstraint);
                 }
@@ -106,7 +106,7 @@ class DependencyAnalyzer
         }
 
         // Add development packages.
-        if (isset($lockData['packages-dev'])) {
+        if ($includeDevs && isset($lockData['packages-dev'])) {
             $this->addPackages($graph, $lockData['packages-dev'], $vendorDir);
         }
 
@@ -120,7 +120,7 @@ class DependencyAnalyzer
                 }
             }
 
-            if (isset($packageData['require-dev'])) {
+            if ($includeDevs && isset($packageData['require-dev'])) {
                 foreach ($packageData['require-dev'] as $name => $version) {
                     $this->connect($graph, $packageData['name'], $name, $version);
                 }
